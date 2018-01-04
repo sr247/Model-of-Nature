@@ -1,6 +1,7 @@
 ## Model-of-Nature
 
-Control: 
+Control:
+
   -`Click and drag` to move agents on the screen.
   -`Shift + D` to drawn links.  
   -`Shift + R` to reset a new randomly graph of agents.  
