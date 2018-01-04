@@ -10,6 +10,7 @@ public:
 
 	bool onHoover;
 	bool onClick;
+	bool isActive;
 
 	ofPoint coords;
 	ofVec2f velocity;
@@ -33,14 +34,15 @@ public:
 		acceleration(0.0f),
 		radius(5.0f),
 		onHoover(false),
-		onClick(false)
+		onClick(false),
+		isActive(false)
 	{
 	}
 	~Agent();
 
 	void draw() const;
 	void update(const vector<Agent>& population, const ofParameter<int>& scaler, const ofParameter<ofColor>& colorer = ofParameter<ofColor>());
-	void update(const vector<Agent>& population, const ofParameter<int>& scaler, const vector<ofColor>& C);
+	void update(const vector<Agent>& population, const ofParameter<int>& scaler, const vector<ofColor>& C, ofParameter<ofColor>& info);
 	void borders();
 	void average();
 	ofPoint barycentre(vector<shared_ptr<Agent*>> agents, float threshold = 2.0f);

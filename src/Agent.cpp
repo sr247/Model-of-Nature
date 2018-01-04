@@ -57,7 +57,7 @@ void Agent::update(const vector<Agent>& population, const ofParameter<int>& scal
 }
 
 // Update Couleur déterminé par l'algo
-void Agent::update(const vector<Agent>& population, const ofParameter<int>& scaler, const vector<ofColor>& C)
+void Agent::update(const vector<Agent>& population, const ofParameter<int>& scaler, const vector<ofColor>& C, ofParameter<ofColor>& info)
 {
 	ofPoint mouse(ofGetMouseX(), ofGetMouseY());
 	if (coords.distance(mouse) <= radius + 5.0f) {
@@ -96,6 +96,10 @@ void Agent::update(const vector<Agent>& population, const ofParameter<int>& scal
 	}
 	else {
 		coords = mouse;
+		info.set(color);
+	}
+	if (isActive) {
+		info.set(color);
 	}
 }
 

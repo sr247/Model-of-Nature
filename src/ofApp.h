@@ -149,6 +149,8 @@ class ofApp : public ofBaseApp{
 		void draw();
 		void transition(vector<Agent>& population);
 		void transition(vector<Boids>& population);
+		void generate(vector<Agent>& population, pair<int, int> number = {5, 5});
+		void generate(vector<Boids>& population, int number = 5);
 		void drawLink(vector<Agent>& population);
 
 		void keyPressed(int key);
@@ -173,7 +175,7 @@ class ofApp : public ofBaseApp{
 
 		Style style;
 		vector<Boids> boids;
-		vector<Agent> population;
+		vector<Agent> agents;
 		vector<ofColor> C;
 		
 		ofxPanel gui;
@@ -181,7 +183,8 @@ class ofApp : public ofBaseApp{
 		ofParameterGroup group;
 		ofParameterGroup group1;
 		ofParameterGroup group2;
-		ofParameter<ofColor> itemColorer;
+		ofParameterGroup groupInfo;
+		ofParameter<ofColor> colorInfo;
 		ofParameter<ofColor> backgroundColorer;
 		ofParameter<int> algorithmChooser;
 		ofParameter<int> itemScaler;

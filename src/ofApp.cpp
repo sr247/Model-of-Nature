@@ -25,10 +25,16 @@ void ofApp::setup(){
 	group.add(group2);
 	gui.setup(group);
 	gui.minimizeAll();
+	
+	groupInfo.setName("Info");
+	groupInfo.add(colorInfo.set("Color", ofColor::black, ofColor(0, 0, 0), ofColor(255, 255, 255)));
+	info.setup(groupInfo);
+
 	ofEnableSmoothing();
 	ofSetFrameRate(frameRater);
 	
 	// Création des Boids
+	//generate(boids);
 	/*
 	for (unsigned int i = 0; i < 300; i++) {
 			boids.push_back(Boids());
@@ -39,47 +45,9 @@ void ofApp::setup(){
 	move = true;
 	*/
 	
+	generate(agents, {3, 2});
 	isMoved = true;
 	isDrawn = true;
-	int w = 7;
-	int h = 1;
-	int max_degree = w*h - 1 < 5 ? w*h - 1 : 5;
-	matrix<int> D(w*h, h*w, max_degree);
-	C = vector<ofColor>(max_degree*(max_degree - 1) + 1, ofColor(128, 128, 128));
-	for (int i = 0; i < C.size(); i ++) {
-		C[i].setHsb(i * 360 / C.size(), 150, 160);
-	}
-	//cout << C.size() << "\n\n";
-	for (unsigned int i = 0; i < w*h; i++) {
-		population.push_back(Agent());
-		population[i].flag = (int)ofRandom((float)C.size());
-		population[i].F = vector<bool>(max_degree*(max_degree - 1) + 1, false);
-		population[i].F[population[i].flag] = true;
-		//cout << population[i].F.size() << '\n';
-	}
-
-	int size = population.size();
-	int k = 0, l = 0;
-	for (unsigned int i = 0; i < D.size().first; i++) {
-		for (unsigned int j = 0; j < D.size().second; j++) {
-			if (i != j) {
-				if (D.get(i, j) == 1) {
-					population[l].nigh
-						.push_back(make_shared<Agent*>(&population[k]));
-				}
-			}
-			k++;
-		}
-		l++;
-		k = 0;
-	}
-	cout << D;
-
-	// Le barycentre n'est pas la solution rechercher:
-	// Trouvé un algo d'équidistance générale
-	for (Agent& a : population) {
-		a.average();
-	}
 
 	float t2 = ofGetElapsedTimeMillis();
 
@@ -117,9 +85,9 @@ void ofApp::update() {
 		// Agents.
 		// Fonction de transition de la class ofApp
 		// 2-Hop Coloring 
-		for (auto& a : population) {
+		for (auto& a : agents) {
 			//population[i].update(population, itemScaler, itemColorer);
-			a.update(population, itemScaler, C);
+			a.update(agents, itemScaler, C, colorInfo);
 		}
 	}	
 
@@ -146,15 +114,16 @@ void ofApp::draw(){
 	//}
 
 	// Affichage du graphe 2Hop-Color
-	transition(population);
-	drawLink(population);
+	transition(agents);
+	drawLink(agents);
 	ofSetLineWidth(4.0f);
-	for (const Agent& a : population) {
+	for (const Agent& a : agents) {
 		a.draw();		
 	}
 
 	// Affichage GUI
 	gui.draw();
+	info.draw();
 
 	// Récupération de timing.
 	float t2 = ofGetElapsedTimeMillis();
@@ -194,15 +163,15 @@ void ofApp::transition(vector<Agent>& population)
 			ofSetColor(ofColor::red);
 			ofNoFill();
 			ofDrawCircle(u.coords, u.radius + 20);
-			ofDrawCircle(v.coords, u.radius + 20);
+			ofDrawCircle(v.coords, v.radius + 20);
 			glPopMatrix();
 
-			u.flag = (int)ofRandom((float)u.F.size());
+			u.flag = (int)ofRandom((float)C.size());
 			u.F[v.flag] = v.F[u.flag];
 		}
 		else{
-			u.F[v.flag] = u.F[u.flag];
-			v.F[u.flag] = v.F[v.flag];
+			u.F[v.flag] = !u.F[v.flag];
+			v.F[u.flag] = !v.F[u.flag];
 		}
 
 		ofSetLineWidth(2.0f);
@@ -237,6 +206,59 @@ void ofApp::transition(vector<Boids>& population)
 	}
 }
 
+void ofApp::generate(vector<Agent>& population, pair<int, int> number)
+{
+	population.clear();
+	// Memory optimisation
+	population.shrink_to_fit();
+	// Calcul of Max degree and Adjacency matrix
+	int max_degree = number.first*number.second - 1 < 5 ? number.first*number.second - 1 : 5;
+	matrix<int> D(number.first*number.second, number.first*number.second, max_degree);
+	// Calcul of Color vector of size g = d * (d-1) + 1
+	C = vector<ofColor>(max_degree*(max_degree - 1) + 1, ofColor(128, 128, 128));
+	// Setting g arbitrary color with Hue coloring system
+	for (int i = 0; i < C.size(); i++) {
+		C[i].setHsb(i * 360 / C.size(), 150, 160);
+	}
+
+	//cout << C.size() << "\n\n";
+	// Pushing new agents with their flag and F vector
+	for (unsigned int i = 0; i < number.first*number.second; i++) {
+		population.push_back(Agent());
+		population[i].flag = (int)ofRandom((float)C.size());
+		population[i].F = vector<bool>(max_degree*(max_degree - 1) + 1, false);
+		population[i].F[agents[i].flag] = true;
+		//cout << population[i].F.size() << '\n';
+	}
+
+	// Setting the neighbourhood of each agents
+	int size = agents.size();
+	int k = 0, l = 0;
+	for (unsigned int i = 0; i < D.size().first; i++) {
+		for (unsigned int j = 0; j < D.size().second; j++) {
+			if (i != j) {
+				if (D.get(i, j) == 1) {
+					population[l].nigh
+						.push_back(make_shared<Agent*>(&population[k]));
+				}
+			}
+			k++;
+		}
+		l++;
+		k = 0;
+	}
+	cout << D;
+
+	// Le barycentre n'est pas la solution rechercher:
+	// Trouvé un algo d'équidistance générale
+	// Trying to set the position to agents in an equidistant way
+	for (Agent& a : population) {
+		a.average();
+	}
+	
+
+}
+
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
@@ -250,6 +272,10 @@ void ofApp::keyReleased(int key){
 	}
 	if (key == GLFW_KEY_D) {
 		isDrawn = !isDrawn;
+	}
+	if (key == GLFW_KEY_R) {
+		//generate(agents, {(int)ofRandom(4) + 1, (int)ofRandom(4) + 1 });
+		generate(agents, {2, 3});
 	}
 }
 
