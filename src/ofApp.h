@@ -1,11 +1,13 @@
 #pragma once
 
-#include "ofMain.h"
-#include "Boids.h"
-#include "Agent.h"
-#include "ofxGui.h"
 #include <utility>
 #include <algorithm>
+
+#include "ofMain.h"
+#include "ofxGui.h"
+
+#include "Boids.h"
+#include "Agent.h"
 
 typedef enum Style{One=1, Two, Three, Four} Style;
 
@@ -69,7 +71,7 @@ public:
 	}
 
 	/* Matrice d'adjacence graphe connexe avec degre max */
-	matrix(unsigned int height, unsigned int width, int max_degree = 5) noexcept :
+	matrix(unsigned int height, unsigned int width, int max_degree = 5) :
 		width(width),
 		height(height)
 	{
@@ -81,20 +83,20 @@ public:
 		std::iota(random.begin(), random.end(), 0);				
 		for (unsigned int i = 0; i < height; i++) {
 			std::random_shuffle(random.begin(), random.end());
-			cout << '\n' << random << '\n';
+			//cout << '\n' << random << '\n';
 			int dm = max_degree;
 			vector<int>::iterator u(random.begin());
-			cout << "line " << i << '\n';
+			//cout << "line " << i << '\n';
 			while (u != random.end()) {
-				cout << dm << '\n';
+				//cout << dm << '\n';
 				if (*u != i) {					
-					cout << "iterator value : " << *u << '\n';
+					//cout << "iterator value : " << *u << '\n';
 					int val1 = std::count(data[i].begin(), data[i].end(), T(1));
 					int val2 = std::count(data[*u].begin(), data[*u].end(), T(1));
 					if (val1 < max_degree && val2 < max_degree) {
-						cout << "Number of 1 in line" << i  <<":"<< val1 << '\n';
-						cout << "Number of 1 in line" << *u <<":"<< val2 << '\n';
-						cout << "Can set" << '\n';
+						//cout << "Number of 1 in line" << i  <<":"<< val1 << '\n';
+						//cout << "Number of 1 in line" << *u <<":"<< val2 << '\n';
+						//cout << "Can set" << '\n';
 						data[i][*u] = T(1);
 						data[*u][i] = T(1);
 					}
@@ -147,6 +149,7 @@ class ofApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+		void exit();
 		void transition(vector<Agent>& population);
 		void transition(vector<Boids>& population);
 		void generate(vector<Agent>& population, pair<int, int> number = {5, 5});
@@ -158,15 +161,21 @@ class ofApp : public ofBaseApp{
 		//void mouseMoved(int x, int y );
 		//void mouseDragged(int x, int y, int button);
 		//void mousePressed(int x, int y, int button);
-		//void mouseReleased(int x, int y, int button);
+		void mouseReleased(int x, int y, int button);
+		void mouseReleasedOnStep();
+		void mouseReleasedOnPlay();
+		void mouseReleasedOnReset();
 		//void mouseEntered(int x, int y);
 		//void mouseExited(int x, int y);
 		//void windowResized(int w, int h);
 		//void dragEvent(ofDragInfo dragInfo);
 		//void gotMessage(ofMessage msg);
 
-		bool isMoved;
-		bool isDrawn;
+		int a1, a2;
+		int Speed;
+		bool Moved;
+		bool Drawn;
+		bool Changed;
 		string fr;
 		string st;
 		string ut;
@@ -177,21 +186,39 @@ class ofApp : public ofBaseApp{
 		vector<Boids> boids;
 		vector<Agent> agents;
 		vector<ofColor> C;
+		vector<ofxLabel> labels;
 		
 		ofxPanel gui;
 		ofxPanel info;
+		ofxPanel colorArray;
 		ofParameterGroup group;
 		ofParameterGroup group1;
 		ofParameterGroup group2;
-		ofParameterGroup groupInfo;
+		ofParameterGroup groupInfo1;
+		ofParameterGroup groupInfo2;
+		ofParameterGroup groupColorArray1;
 		ofParameter<ofColor> colorInfo;
+		ofParameter<string> flagInfo;
 		ofParameter<ofColor> backgroundColorer;
 		ofParameter<int> algorithmChooser;
 		ofParameter<int> itemScaler;
 		ofParameter<int> frameRater;
+		ofParameter<int> number;
 		ofParameter<string> elaspedTime;
 		ofParameter<string> Framerate;
 		ofParameter<string> setupTimer;
 		ofParameter<string> updateTimer;
 		ofParameter<string> drawTimer;
+
+		//// If ofParameter
+		ofParameter<bool> step;
+		ofParameter<bool> play;
+		ofParameter<bool> reset;
+
+		ofxButton to_step;
+		ofxButton to_play;
+		ofxButton to_reset;
+
+		float timer;
+		
 };

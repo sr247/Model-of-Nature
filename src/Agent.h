@@ -26,7 +26,8 @@ public:
 	vector<shared_ptr<Agent*>> nigh;
 
 public:
-	Agent() : coords(ofRandom(0.f, ofGetWidth()), ofRandom(0.f, ofGetHeight())),
+	Agent() : coords(ofRandom(ofGetWidth() / 2 - ofGetWidth() / 4, ofGetWidth()/2+ ofGetWidth() / 4),
+						ofRandom(ofGetHeight() / 2 - ofGetHeight() / 4, ofGetHeight() / 2 + ofGetHeight() / 4)),
 		color(ofColor::blueSteel),
 		hooverColor(ofColor::greenYellow),
 		clickColor(ofColor::yellowGreen),
@@ -42,7 +43,11 @@ public:
 
 	void draw() const;
 	void update(const vector<Agent>& population, const ofParameter<int>& scaler, const ofParameter<ofColor>& colorer = ofParameter<ofColor>());
-	void update(const vector<Agent>& population, const ofParameter<int>& scaler, const vector<ofColor>& C, ofParameter<ofColor>& info);
+	void update(const vector<Agent>& population, 
+		const ofParameter<int>& scaler, 
+		const vector<ofColor>& C, 
+		ofParameter<ofColor>& info,
+		ofParameter<string>& infoColor);
 	void borders();
 	void average();
 	ofPoint barycentre(vector<shared_ptr<Agent*>> agents, float threshold = 2.0f);
