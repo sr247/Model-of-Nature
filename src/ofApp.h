@@ -165,6 +165,7 @@ class ofApp : public ofBaseApp{
 		void mouseReleasedOnStep();
 		void mouseReleasedOnPlay();
 		void mouseReleasedOnReset();
+		void mouseReleasedOnShow();
 		//void mouseEntered(int x, int y);
 		//void mouseExited(int x, int y);
 		//void windowResized(int w, int h);
@@ -177,6 +178,8 @@ class ofApp : public ofBaseApp{
 		bool Moved;
 		bool Drawn;
 		bool Changed;
+		bool Determinist;
+		bool showTransition;
 		string fr;
 		string st;
 		string ut;
@@ -216,10 +219,12 @@ class ofApp : public ofBaseApp{
 		ofParameter<bool> step;
 		ofParameter<bool> play;
 		ofParameter<bool> reset;
+		ofParameter<bool> show;
 
 		ofxButton to_step;
 		ofxButton to_play;
 		ofxButton to_reset;
+		ofxButton to_show;
 
 		float timer;
 		

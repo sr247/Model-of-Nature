@@ -71,7 +71,7 @@ void Agent::update(const vector<Agent>& population, const ofParameter<int>& scal
 	}
 	
 	radius = scaler.get() * 5.0f;
-	color.set(C[flag]);
+	//color.set(C[flag]);
 
 	float val = 0.01f;
 	float epsilon = 6.0f;

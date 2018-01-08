@@ -48,13 +48,16 @@ void ofApp::setup(){
 	to_step.addListener(this, &ofApp::mouseReleasedOnStep);
 	to_play.addListener(this, &ofApp::mouseReleasedOnPlay);
 	to_reset.addListener(this, &ofApp::mouseReleasedOnReset);
+	to_show.addListener(this, &ofApp::mouseReleasedOnShow);
 	info.add(to_step.setup("Step", false));
 	info.add(to_play.setup("Play", false));
 	info.add(to_reset.setup("Reset", false));
+	info.add(to_show.setup("Show", true));
 
 	step.set(false);
 	play.set(false);
 	reset.set(false);
+	show.set(true);
 	info.add(groupInfo1);
 	info.setPosition(ofPoint(ofGetWidth()/10, 3*ofGetHeight()/6));
 	
@@ -86,6 +89,7 @@ void ofApp::setup(){
 	
 	Moved = true;
 	Drawn = true;
+	Determinist = false;
 	Speed = 1;
 	float t2 = ofGetElapsedTimeMillis();
 
@@ -157,7 +161,7 @@ void ofApp::draw(){
 	float t1 = ofGetElapsedTimeMillis();
 
 	//ofBackground(backgroundColorer);
-	ofBackgroundGradient(ofColor::lightGray, ofColor::gray);
+	ofBackgroundGradient(ofColor::lightGray, ofColor::darkGray);
 	// Affichage des Boids
 	//for (Boids b : boids) {
 	//	b.draw(scaler, colorer);
@@ -224,7 +228,11 @@ void ofApp::transition(vector<Agent>& population)
 	if (step) {
 		number_of_transition++;
 		if (u.F[v.flag] != v.F[u.flag]) {
-			u.flag = (int)ofRandom((float)C.size());
+			if (!Determinist) {
+				u.flag = (int)ofRandom((float)C.size());
+			}else {
+
+			}
 			u.F[v.flag] = v.F[u.flag];
 			Changed = true;
 		}
@@ -238,22 +246,25 @@ void ofApp::transition(vector<Agent>& population)
 	u.color.set(C[u.flag]);
 	v.color.set(C[v.flag]);
 
-	if (Changed) {
-		glPushMatrix();		
-		ofNoFill();
-		ofSetColor(ofColor::green);
-		ofDrawCircle(u.coords, u.radius + 20);
-		ofSetColor(ofColor::red);
-		ofDrawCircle(v.coords, v.radius + 20);
-		glPopMatrix();
-	}
+	if(show){
+		if (Changed) {
+			glPushMatrix();
+			ofNoFill();
+			ofSetColor(ofColor::green);
+			ofDrawCircle(u.coords, u.radius + 20);
+			ofSetColor(ofColor::red);
+			ofDrawCircle(v.coords, v.radius + 20);
+			glPopMatrix();
+		}
 
-	ofSetLineWidth(2.0f);
-	glPushMatrix();
+		ofSetLineWidth(2.0f);
+		glPushMatrix();
 		ofSetColor(ofColor::red);
 		ofDrawLine(u.coords, v.coords);
-	glPopMatrix();
-	ofSetColor(255);
+		glPopMatrix();
+		ofSetColor(255);
+	}
+	
 }
 
 //--------------------------------------------------------------
@@ -276,12 +287,12 @@ void ofApp::transition(vector<Boids>& population)
 void ofApp::generate(vector<Agent>& population, pair<int, int> number)
 {
 	try {
-	
+		int dval = 3;
 		population = vector<Agent>();
 		// Memory optimisation
 		//population.shrink_to_fit();
 		// Calcul of Max degree and Adjacency matrix
-		int max_degree = number.first*number.second - 1 < 5 ? number.first*number.second - 1 : 5;
+		int max_degree = number.first*number.second - 1 < dval ? number.first*number.second - 1 : dval;
 		matrix<int> D(number.first*number.second, number.first*number.second, max_degree);
 		// Calcul of Color vector of size g = d * (d-1) + 1
 		C = vector<ofColor>(max_degree*(max_degree - 1) + 1, ofColor(128, 128, 128));
@@ -379,6 +390,10 @@ void ofApp::mouseReleasedOnReset() {
 	generate(agents, { 1, number });
 	timer = ofGetElapsedTimeMillis();
 	elaspedTime.set(to_string(timer));
+}
+
+void ofApp::mouseReleasedOnShow() {
+	show.set(!show);
 }
 
 //--------------------------------------------------------------
