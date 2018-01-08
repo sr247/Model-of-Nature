@@ -4,8 +4,8 @@
 void ofApp::setup(){
 	float t1 = ofGetElapsedTimeMillis();
 	fr += to_string(ofGetFrameRate());
-
-	generate(agents, {3, 2});
+	number_of_transition = 0;
+	generate(agents, {1, 2});
 
 	timer = 0.0f;
 	gui.setup();
@@ -19,11 +19,12 @@ void ofApp::setup(){
 	group2.add(frameRater.set("Set rate", 60, 1, 80));
 	group2.add(number.set("Number of Agents", 6, 2, 200));
 	group1.setName("Time");
-	group1.add(elaspedTime.set("Time", t));
+	//group1.add(elaspedTime.set("Time", t));
 	group1.add(Framerate.set("Framrate", fr));
 	group1.add(setupTimer.set("Setup time", st));
 	group1.add(updateTimer.set("Update time", ut));
 	group1.add(drawTimer.set("Draw time", dt));
+	group1.add(num_transition.set("Total transition", to_string(number_of_transition)));
 	
 	group.add(group1);
 	group.add(group2);
@@ -90,8 +91,9 @@ void ofApp::setup(){
 
 	a1 = (int)ofRandom((float)agents.size());
 	a2 = (int)ofRandom((float)agents[a1].nigh.size());
+	num_transition.set(to_string(number_of_transition));
 
-	st = to_string(t2 - t1);
+	st = to_string(t2 - t1) + "/ms";
 	setupTimer.set(st);
 	t = to_string((t2 - timer)/1000.0f) + "/s";
 	elaspedTime.set(t);
@@ -137,12 +139,14 @@ void ofApp::update() {
 
 	}	
 
+	num_transition.set(to_string(number_of_transition));
+
 	// Récupération de timing.
 	fr = to_string(ofGetFrameRate());		
 	Framerate.set(fr);
 	ofSetFrameRate(frameRater);
 	float t2 = ofGetElapsedTimeMillis();
-	ut = to_string(t2 - t1) + "/s";
+	ut = to_string(t2 - t1) + "/ms";
 	updateTimer.set(ut);
 	t = to_string((t2 - timer)/1000.0f) + "/s";
 	elaspedTime.set(t);
@@ -150,7 +154,7 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	float t1 = ofGetElapsedTimeMicros();
+	float t1 = ofGetElapsedTimeMillis();
 
 	//ofBackground(backgroundColorer);
 	ofBackgroundGradient(ofColor::lightGray, ofColor::gray);
@@ -179,8 +183,8 @@ void ofApp::draw(){
 	colorArray.draw();
 
 	// Récupération de timing.
-	float t2 = ofGetElapsedTimeMicros();
-	dt = to_string(t2 - t1) + "/ùs";
+	float t2 = ofGetElapsedTimeMillis();
+	dt = to_string(t2 - t1) + "/ms";
 	drawTimer.set(dt);
 }
 
@@ -188,7 +192,7 @@ void ofApp::draw(){
 void ofApp::drawLink(vector<Agent>& population) {
 	if (Drawn) {
 		for (const Agent& u : population) {		
-			ofSetColor(ofColor(ofColor::orange, 32.0f));
+			ofSetColor(ofColor(ofColor::orange, 64.0f));
 			ofSetLineWidth(2.0f);
 			for (const shared_ptr<Agent*>& v : u.nigh) {
 				glPushMatrix();
@@ -218,6 +222,7 @@ void ofApp::transition(vector<Agent>& population)
 	Agent& v = **population[a1].nigh[a2];
 
 	if (step) {
+		number_of_transition++;
 		if (u.F[v.flag] != v.F[u.flag]) {
 			u.flag = (int)ofRandom((float)C.size());
 			u.F[v.flag] = v.F[u.flag];
@@ -325,6 +330,7 @@ void ofApp::generate(vector<Agent>& population, pair<int, int> number)
 
 		a1 = (int)ofRandom((float)population.size());
 		a2 = (int)ofRandom((float)population[a1].nigh.size());
+		number_of_transition = 0;
 	}catch (exception e){
 		fstream f("error.txt");
 		f << "ofApp::generate" << e.what() << '\n';

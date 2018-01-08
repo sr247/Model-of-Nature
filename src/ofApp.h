@@ -173,6 +173,7 @@ class ofApp : public ofBaseApp{
 
 		int a1, a2;
 		int Speed;
+		int number_of_transition;
 		bool Moved;
 		bool Drawn;
 		bool Changed;
@@ -204,6 +205,7 @@ class ofApp : public ofBaseApp{
 		ofParameter<int> itemScaler;
 		ofParameter<int> frameRater;
 		ofParameter<int> number;
+		ofParameter<string> num_transition;
 		ofParameter<string> elaspedTime;
 		ofParameter<string> Framerate;
 		ofParameter<string> setupTimer;
